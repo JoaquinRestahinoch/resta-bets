@@ -225,22 +225,39 @@ app.get('*', (req, res, next) => {
 });
 
 // ─── STARTUP ─────────────────────────────────────────────────────
-await initDB();
+async function start() {
+  try {
+    await initDB();
+  } catch (err) {
+    logger.error('system', `DB init failed: ${err.message}`);
+  }
 
-if (config.dataMode === 'simulator') {
-  initSimulator();
+  if (config.dataMode === 'simulator') {
+    initSimulator();
+  }
+
+  const port = process.env.PORT || config.port || 3001;
+  logger.info('system', `Starting server on port ${port}`);
+
+  httpServer.listen(port, '0.0.0.0', async () => {
+    logger.info('system', `Server running on port ${port}`);
+
+    try {
+      await runScrapeCycle();
+    } catch (err) {
+      logger.error('system', `Initial scrape failed: ${err.message}`);
+    }
+
+    const interval = Math.max(config.scrapeInterval, 10);
+    const cronExpr = interval >= 60 ? `*/${Math.floor(interval / 60)} * * * *` : `*/${interval} * * * * *`;
+    cron.schedule(cronExpr, () => { runScrapeCycle().catch(e => logger.error('system', e.message)); });
+    logger.info('system', `Scraping every ${interval} seconds`);
+
+    cron.schedule('0 3 * * *', () => cleanOldData(30));
+  });
 }
 
-logger.info('system', `Starting server on port ${config.port} (mode: ${config.dataMode})`);
-
-httpServer.listen(config.port, '0.0.0.0', async () => {
-  logger.info('system', `Server running on port ${config.port}`);
-
-  await runScrapeCycle();
-
-  const cronExpr = `*/${config.scrapeInterval} * * * * *`;
-  cron.schedule(cronExpr, runScrapeCycle);
-  logger.info('system', `Scraping every ${config.scrapeInterval} seconds`);
-
-  cron.schedule('0 3 * * *', () => cleanOldData(30));
+start().catch(err => {
+  logger.error('system', `Fatal: ${err.message}`);
+  process.exit(1);
 });
