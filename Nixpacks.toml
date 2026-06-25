@@ -1,8 +1,8 @@
 [phases.install]
-cmds = ["npm install"]
+cmds = ["npm install --legacy-peer-deps"]
 
 [phases.build]
-cmds = ["npm run build"]
+cmds = ["npx vite build"]
 
 [start]
 cmd = "node server/index.js"
