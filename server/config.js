@@ -1,4 +1,4 @@
-import 'dotenv/config';
+try { await import('dotenv/config'); } catch {}
 
 export default {
   port: parseInt(process.env.PORT || '3001'),

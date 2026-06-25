@@ -236,7 +236,7 @@ async function start() {
     initSimulator();
   }
 
-  const port = process.env.PORT || config.port || 3001;
+  const port = parseInt(process.env.PORT) || 3001;
   logger.info('system', `Starting server on port ${port}`);
 
   httpServer.listen(port, '0.0.0.0', () => {
