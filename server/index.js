@@ -239,14 +239,13 @@ async function start() {
   const port = process.env.PORT || config.port || 3001;
   logger.info('system', `Starting server on port ${port}`);
 
-  httpServer.listen(port, '0.0.0.0', async () => {
+  httpServer.listen(port, '0.0.0.0', () => {
     logger.info('system', `Server running on port ${port}`);
 
-    try {
-      await runScrapeCycle();
-    } catch (err) {
-      logger.error('system', `Initial scrape failed: ${err.message}`);
-    }
+    // Scraping en background - no bloquear el startup
+    setTimeout(() => {
+      runScrapeCycle().catch(e => logger.error('system', e.message));
+    }, 2000);
 
     const interval = Math.max(config.scrapeInterval, 10);
     const cronExpr = interval >= 60 ? `*/${Math.floor(interval / 60)} * * * *` : `*/${interval} * * * * *`;
