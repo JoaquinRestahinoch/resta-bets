@@ -1,0 +1,8 @@
+[phases.setup]
+aptPkgs = ["python3", "make", "g++", "build-essential"]
+
+[phases.build]
+cmds = ["npm install", "npm run build"]
+
+[start]
+cmd = "npm start"
