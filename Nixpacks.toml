@@ -1,8 +1,12 @@
 [phases.setup]
-aptPkgs = ["python3", "make", "g++", "build-essential"]
+aptPkgs = ["python3", "make", "g++"]
+nixPkgs = ["nodejs_20"]
+
+[phases.install]
+cmds = ["npm ci || npm install"]
 
 [phases.build]
-cmds = ["npm install", "npm run build"]
+cmds = ["npm run build"]
 
 [start]
-cmd = "npm start"
+cmd = "node server/index.js"
