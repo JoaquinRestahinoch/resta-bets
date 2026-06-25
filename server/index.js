@@ -219,8 +219,8 @@ io.on('connection', (socket) => {
 // ─── SERVE FRONTEND (produccion) ─────────────────────────────────
 const distPath = path.join(__dirname, '..', 'dist');
 app.use(express.static(distPath));
-app.get('*', (req, res, next) => {
-  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io')) return next();
+app.use((req, res, next) => {
+  if (req.path.startsWith('/api') || req.path.startsWith('/socket.io') || req.method !== 'GET') return next();
   res.sendFile(path.join(distPath, 'index.html'));
 });
 
