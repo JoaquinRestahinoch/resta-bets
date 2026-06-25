@@ -225,7 +225,7 @@ app.get('*', (req, res, next) => {
 });
 
 // ─── STARTUP ─────────────────────────────────────────────────────
-initDB();
+await initDB();
 
 if (config.dataMode === 'simulator') {
   initSimulator();
